@@ -9,6 +9,7 @@ class LoginCredentials(BaseModel):
 class UserCredentials(BaseModel):
     username: str
     name: str
+    lastname: str
     email: str
 
 class LoginCredentialsResponse(BaseModel):
