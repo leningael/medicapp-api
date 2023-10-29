@@ -17,6 +17,13 @@ def get_patients():
         return JSONResponse({"message": "No patients found"}, status_code=status.HTTP_404_NOT_FOUND)
     return json_encoder(patients)
 
+@patient_router.get("/patients/doctor/{id}")
+def get_my_patients(id: str):
+    patients = patientService().get_my_patients(id)
+    if not patients:
+        return JSONResponse({"message": "No patients found"}, status_code=status.HTTP_404_NOT_FOUND)
+    return json_encoder(patients)
+
 @patient_router.get("/patients/{id}")
 def get_patient(id: str):
     patient = patientService().get_patient(id)

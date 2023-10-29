@@ -12,6 +12,6 @@ class Patient(BaseModel):
     address: str
     zipcode: str
     bloodtype: str
-    owner: List[str]
+    doctors: List[str]
 
     
