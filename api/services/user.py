@@ -16,22 +16,23 @@ class UserService():
             user_match = cnx.users.find_one({"email": credentials.email})
         if not user_match or user_match["password"] != credentials.password:
             return None
-        user_match.pop("_id")
         user_match.pop("password")
         encode = {
             "sub":user_match.get("username"),
-            "id":user_match.get("user_id"),
+            "id": str(user_match.get("_id")),
             "role":user_match.get("role"),
             "email":user_match.get("email")
             }
+        user_match.pop("_id")
         role = user_match.pop("role")
         token = create_token(encode)
         return LoginCredentialsResponse(app_token=token, user_credentials=user_match, role=role)
     
+ 
 #Pantoja desmadr
 
 oauth2_bearer: str = OAuth2PasswordBearer(tokenUrl="auth/login")    
-def get_curret_user(token: Annotated[str, Depends(oauth2_bearer)]):
+async def get_curret_user(token: Annotated[str, Depends(oauth2_bearer)]):
     try:
         payload = validate_token(token)
         username: str = payload.get("sub")

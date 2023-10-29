@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from api.middlewares.error_handler import ErrorHandler
-from api.routers.user import user_router
+from api.routers import user, patient
 
 
 app = FastAPI()
@@ -17,7 +17,9 @@ app.add_middleware(
     )
 # app.add_middleware(ErrorHandler)
 
-app.include_router(user_router)
+app.include_router(user.router)
+app.include_router(patient.router)
+
 
 @app.get("/")
 def root():
