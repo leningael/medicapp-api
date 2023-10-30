@@ -7,6 +7,7 @@ class LoginCredentials(BaseModel):
 
 
 class UserCredentials(BaseModel):
+    id: str
     username: str
     name: str
     lastname: str
