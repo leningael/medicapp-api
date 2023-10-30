@@ -4,7 +4,7 @@ from config.mongoCon import MongoCon
 
 
 class patientService():
-
+    
     def get_patients(self):
         with MongoCon() as cnx:
             patients_list = cnx.patients.find()
@@ -34,6 +34,7 @@ class patientService():
     def add_patient(self, patient: Patient):
         with MongoCon() as cnx:
             new_patient = patient.model_dump()
+            # TODO add doctor
             response = cnx.patients.insert_one(new_patient)
             print(response)
             if not response:
@@ -53,3 +54,5 @@ class patientService():
             if not response:
                 return None
             return response
+        
+    #TODO atatch doctor (agregar paciente existente)
