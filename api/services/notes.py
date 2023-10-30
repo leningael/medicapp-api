@@ -4,7 +4,8 @@ from config.mongoCon import MongoCon
 
 class NotesService:
     def get_notes():
-        ...
+        return 'hello'
+    
     def post_note():
         ...
     def delete_note():
