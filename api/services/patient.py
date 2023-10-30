@@ -10,14 +10,17 @@ class patientService():
             patients_list = cnx.patients.find()
             if not patients_list:
                 return None
-            print(patients_list)
+           
             return list(patients_list)
         
-    def get_my_patients(self, doctor_id: str):
+    def get_my_patients(self, id: str):
         with MongoCon() as cnx:
-            patients_list = cnx.patients.find({"doctors": ObjectId(doctor_id)})
+            print(type(id))
+            patients_list = cnx.patients.find({"doctors": ObjectId(id)})
+            
             if not patients_list:
-                return None
+                return None           
+            
             return list(patients_list)
         
     def get_patient(self, id: str) :
