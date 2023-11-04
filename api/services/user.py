@@ -1,4 +1,4 @@
-from api.schemas.user import LoginCredentials, LoginCredentialsResponse
+from api.schemas.user import LoginCredentials, LoginCredentialsResponse, UserCredentials
 from api.utils.jwt_manager import create_token
 from config.mongoCon import MongoCon
 
