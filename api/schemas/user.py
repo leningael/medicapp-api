@@ -7,11 +7,13 @@ class LoginCredentials(BaseModel):
 
 
 class UserCredentials(BaseModel):
+    id: str = Field(alias="_id")
     username: str
     name: str
+    lastname: str
     email: str
 
 class LoginCredentialsResponse(BaseModel):
-    app_token: str
+    token: str
     user_credentials: UserCredentials
     role: str
