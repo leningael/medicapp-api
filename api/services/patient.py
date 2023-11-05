@@ -17,10 +17,8 @@ class patientService():
         with MongoCon() as cnx:
             print(type(id))
             patients_list = cnx.patients.find({"doctors": ObjectId(id)})
-            
             if not patients_list:
                 return None           
-            
             return list(patients_list)
         
     def get_patient(self, id: str) :
@@ -30,6 +28,18 @@ class patientService():
             if not patient:
                 return None
             return patient
+        
+    def get_patients_by_term(self, term: str, id: str) :
+        with MongoCon() as cnx:
+            patients_list = cnx.patients.find(
+                {"doctors": ObjectId(id),
+                "$or": [
+                    { "name": { "$regex": term } },
+                    { "curp": { "$regex": term } }
+                ]})
+            if not patients_list:
+                return None           
+            return list(patients_list)
         
     def add_patient(self, patient: Patient):
         with MongoCon() as cnx:
