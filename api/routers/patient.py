@@ -1,5 +1,5 @@
 import json
-from fastapi import APIRouter
+from fastapi import APIRouter, Query
 from fastapi import status
 from fastapi.responses import JSONResponse
 from api.schemas.patient import Patient
@@ -30,6 +30,13 @@ def get_patient(id: str):
     if not patient:
         return JSONResponse({"message": "No patient found"}, status_code=status.HTTP_404_NOT_FOUND)
     return json_encoder(patient)
+
+@patient_router.get("/patients/search/")
+def get_patients_by_term(term: str, doctor_id: str):
+    patients = patientService().get_patients_by_term(term, doctor_id)
+    if not patients:
+        return JSONResponse({"message": "No patients found"}, status_code=status.HTTP_404_NOT_FOUND)
+    return json_encoder(patients)
 
 @patient_router.post("/patients")
 def add_patient(patient: Patient):
