@@ -1,5 +1,6 @@
 from bson import ObjectId
 from api.schemas.patient import Patient, PatientOverview
+from api.utils.responses import json_encoder
 from config.mongoCon import MongoCon
 from pymongo import ReturnDocument 
 
@@ -37,6 +38,7 @@ class PatientService():
             patient = cnx.patients.find_one({"_id": ObjectId(id)})
             if not patient:
                 return None
+            patient["doctors"] = json_encoder(patient["doctors"])
             return Patient(**patient)
         
     def add_patient(self, patient: Patient):
