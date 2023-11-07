@@ -9,7 +9,7 @@ class PatientService():
     def get_all_existing_patients(self, search: str = None):
         with MongoCon() as cnx:
             if search:
-               patients_list = cnx.patients.find({"curp": {"$regex": search}},{ "_id": 1, "name": 1, "lastname": 1, "curp": 1 })
+               patients_list = cnx.patients.find({"curp": {"$regex": search, "$options": "i"}},{ "_id": 1, "name": 1, "lastname": 1, "curp": 1 })
             else:
                 patients_list = cnx.patients.find({},{ "_id": 1, "name": 1, "lastname": 1, "curp": 1 })
             if not patients_list:

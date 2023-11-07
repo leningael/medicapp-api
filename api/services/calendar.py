@@ -28,7 +28,7 @@ def create_appointment(appointment: AppointmentCreation) -> Appointment:
     if (appointment.end_datetime < appointment.start_datetime):
         raise HTTPException(
             status_code=400, detail="The appointment end time must be greater than the start time")
-    business_hours = get_business_hours(appointment.doctor_id)
+    business_hours = BusinessHours(**get_business_hours(appointment.doctor_id))
     if business_hours:
         in_business_hours = verify_business_hours_for_appointment(appointment, business_hours)
         if not in_business_hours:
