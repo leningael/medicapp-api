@@ -41,6 +41,7 @@ class PatientService():
         
     def add_patient(self, patient: Patient):
         with MongoCon() as cnx:
+            patient.doctors = [ObjectId(id) for id in patient.doctors]
             new_patient = patient.model_dump()
             response = cnx.patients.insert_one(new_patient)
             if not response:
