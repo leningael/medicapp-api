@@ -38,8 +38,7 @@ class PatientService():
             patient = cnx.patients.find_one({"_id": ObjectId(id)})
             if not patient:
                 return None
-            patient["doctors"] = json_encoder(patient["doctors"])
-            return Patient(**patient)
+            return patient
         
     def add_patient(self, patient: Patient):
         with MongoCon() as cnx:
