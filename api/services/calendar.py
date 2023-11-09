@@ -1,9 +1,10 @@
 from datetime import datetime
+from typing import List
 
 from bson import ObjectId
 from fastapi import HTTPException
-from api.schemas.appointment import Appointment, AppointmentCreation, BusinessHours, DayAppointments
-from api.utils.responses import json_encoder
+from pymongo import UpdateOne
+from api.schemas.appointment import Appointment, AppointmentCreation, AppointmentMove, BusinessHours, DayAppointments
 from config.mongoCon import MongoCon
 from pymongo.command_cursor import CommandCursor
 
@@ -15,6 +16,8 @@ def set_businness_hours(doctor_id: str, business_hours: BusinessHours) -> bool:
     return result.matched_count > 0
 
 # TODO: Return BusinessHours model
+
+
 def get_business_hours(doctor_id: str) -> BusinessHours:
     with MongoCon() as cnx:
         result = cnx.users.find_one({"_id": ObjectId(doctor_id)}, {
@@ -24,13 +27,16 @@ def get_business_hours(doctor_id: str) -> BusinessHours:
     return result["business_hours"]
 
 # TODO: Return Appointment model
+
+
 def create_appointment(appointment: AppointmentCreation) -> Appointment:
     if (appointment.end_datetime < appointment.start_datetime):
         raise HTTPException(
             status_code=400, detail="The appointment end time must be greater than the start time")
-    business_hours = get_business_hours(appointment.doctor_id)
+    business_hours = BusinessHours(**get_business_hours(appointment.doctor_id))
     if business_hours:
-        in_business_hours = verify_business_hours_for_appointment(appointment, business_hours)
+        in_business_hours = verify_business_hours_for_appointment(
+            appointment, business_hours)
         if not in_business_hours:
             raise HTTPException(
                 status_code=400, detail="The appointment is not within the doctor's business hours")
@@ -109,6 +115,8 @@ def get_appointments(match_stage: dict) -> CommandCursor:
     return result
 
 # TODO: Return DayAppointments model
+
+
 def get_day_appointments(doctor_id: str, date: str) -> DayAppointments:
     date = datetime.strptime(date, "%Y-%m-%d")
     business_hours = get_business_hours(doctor_id)
@@ -121,3 +129,76 @@ def get_day_appointments(doctor_id: str, date: str) -> DayAppointments:
     })
     appointments = list(result)
     return {'business_hours': business_hours, 'appointments': appointments}
+
+
+def get_patient_appointments(doctor_id: str, patient_id: str) -> List[Appointment]:
+    with MongoCon() as cnx:
+        result = cnx.appointments.aggregate([
+            {
+                "$match": {
+                    "doctor_id": ObjectId(doctor_id),
+                    "patient_id": ObjectId(patient_id)
+                }
+            },
+            {
+                "$limit": 5
+            },
+            {
+                "$sort": {
+                    "start_datetime": -1
+                }
+            },
+            {
+                "$project": {
+                    "_id": 1,
+                    "cause": 1,
+                    "start_datetime": 1,
+                    "end_datetime": 1,
+                    "status": {
+                        "$cond": {
+                            "if": {
+                                "$lt": ["$start_datetime", datetime.now()]
+                            },
+                            "then": "pending",
+                            "else": "completed"
+                        }
+                    }
+                }
+            }
+        ])
+    if not result:
+        return None
+    return list(result)
+
+
+def delete_appointment(appointment_id: str) -> bool:
+    with MongoCon() as cnx:
+        result = cnx.appointments.delete_one({"_id": ObjectId(appointment_id)})
+    return result.deleted_count > 0
+
+
+def move_appointment(move_data: AppointmentMove):
+    with MongoCon() as cnx:
+        appointment_to_move = cnx.appointments.find_one(
+            {"_id": ObjectId(move_data.appointment_id)})
+        if not appointment_to_move:
+            return None
+        operations = [
+            UpdateOne(
+                {"start_datetime": move_data.start_datetime,
+                    "end_datetime": move_data.end_datetime},
+                {"$set": {
+                    "start_datetime": appointment_to_move["start_datetime"],
+                    "end_datetime": appointment_to_move["end_datetime"]
+                }}
+            ),
+            UpdateOne(
+                {"_id": ObjectId(move_data.appointment_id)},
+                {"$set": {
+                    "start_datetime": move_data.start_datetime,
+                    "end_datetime": move_data.end_datetime
+                }}
+            )
+        ]
+        result = cnx.appointments.bulk_write(operations)
+    return result.modified_count > 0

@@ -29,3 +29,8 @@ class Appointment(BaseModel):
 class DayAppointments(BaseModel):
     business_hours: BusinessHours
     appointments: List[Appointment]
+
+class AppointmentMove(BaseModel):
+    appointment_id: str
+    start_datetime: datetime
+    end_datetime: datetime

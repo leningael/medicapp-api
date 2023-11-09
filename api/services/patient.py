@@ -2,7 +2,7 @@ from bson import ObjectId
 from api.schemas.patient import Patient, PatientOverview
 from api.utils.responses import json_encoder
 from config.mongoCon import MongoCon
-from pymongo import ReturnDocument 
+from pymongo import ReturnDocument
 
 
 class PatientService():
@@ -16,24 +16,27 @@ class PatientService():
                 find_condition.update({"curp": {"$regex": search, '$options': 'i'}}) 
             patients_list = cnx.patients.find(find_condition,{ "_id": 1, "name": 1, "lastname": 1, "curp": 1 })
             return list(patients_list)
-        
+
     def get_dr_patients(self, id: str, search: str = None):
         with MongoCon() as cnx:
+            find_condition = {"doctors": ObjectId(id)}
             if search:
-                patients_list = cnx.patients.find(
-                {"doctors": ObjectId(id),
-                "$or": [
-                    { "name": { "$regex": search, '$options': 'i' } },
-                    { "lastame": { "$regex": search ,'$options': 'i'}},
-                    { "curp": { "$regex": search , '$options': 'i'}}
-                ]}, { "_id": 1, "name": 1, "lastname": 1, "curp": 1 })
-            else:
-                patients_list = cnx.patients.find({"doctors": ObjectId(id)}, { "_id": 1, "name": 1, "lastname": 1, "curp": 1 })
+                search_fields = {
+                    "$or":
+                    [
+                        {"name": {"$regex": search, "$options": "i"}},
+                        {"lastname": {
+                            "$regex": search, "$options": "i"}},
+                        {"curp": {"$regex": search, "$options": "i"}}
+                    ]
+                }
+                find_condition.update(search_fields)       
+            patients_list = cnx.patients.find(find_condition, { "_id": 1, "name": 1, "lastname": 1, "curp": 1 })
             if not patients_list:
-                return None      
-            return list(patients_list) 
-        
-    def get_patient(self, id: str) :
+                return None
+            return list(patients_list)
+
+    def get_patient(self, id: str):
         with MongoCon() as cnx:
             patient = cnx.patients.find_one({"_id": ObjectId(id)})
             if not patient:
