@@ -15,7 +15,7 @@ class UserCredentials(BaseModel):
     role:str
 
 class LoginCredentialsResponse(BaseModel):
-    token: str
+    app_token: str
     user_credentials: UserCredentials
     role: str
     

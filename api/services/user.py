@@ -12,13 +12,13 @@ class UserService():
             return None
         
         user_match.pop("password")
-        role = user_match.pop("role")
         
         user_credentials = UserCredentials(
-            id=str(user_match["_id"]),
+            _id=str(user_match.pop("_id")),
             **user_match
         )
-
+        print(user_match)
+        role = user_match.pop("role")
         token = create_token(dict(user_credentials))
         return LoginCredentialsResponse(app_token=token, user_credentials=user_credentials, role=role)
     
