@@ -11,7 +11,7 @@ from api.utils.responses import json_encoder
 patient_router = APIRouter()
 
 @patient_router.get("/patients")
-def get_all_existing_patients(search: str = None, doctor_id: str = None):
+def get_all_existing_patients(doctor_id: str = None, search: str = None):
     patients = PatientService().get_all_existing_patients(doctor_id, search)
     if not patients:
         return JSONResponse({"message": "No patients found"}, status_code=status.HTTP_404_NOT_FOUND)

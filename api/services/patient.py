@@ -9,21 +9,12 @@ class PatientService():
 
     def get_all_existing_patients(self, doctor_id: str = None, search: str = None):
         with MongoCon() as cnx:
-            if (search):
-               patients_list = cnx.patients.find(
-                   {"doctors": {"$ne": ObjectId(doctor_id)}},
-                   {"curp": {"$regex": search, '$options': 'i'}},
-                   { "_id": 1, "name": 1, "lastname": 1, "curp": 1 }
-                )
-            if (doctor_id and not search):
-                patients_list = cnx.patients.find(
-                    {"doctors": {"$ne": ObjectId(doctor_id)}},
-                    { "_id": 1, "name": 1, "lastname": 1, "curp": 1 }
-                )
-            else:
-                patients_list = cnx.patients.find({},{ "_id": 1, "name": 1, "lastname": 1, "curp": 1 })
-            if not patients_list:
-                return None              
+            find_condition = {}
+            if doctor_id:
+                find_condition["doctors"] = {"$ne": ObjectId(doctor_id)}
+            if search:
+                find_condition.update({"curp": {"$regex": search, '$options': 'i'}}) 
+            patients_list = cnx.patients.find(find_condition,{ "_id": 1, "name": 1, "lastname": 1, "curp": 1 })
             return list(patients_list)
         
     def get_dr_patients(self, id: str, search: str = None):
@@ -33,8 +24,8 @@ class PatientService():
                 {"doctors": ObjectId(id),
                 "$or": [
                     { "name": { "$regex": search, '$options': 'i' } },
-                    { "lastame": { "$regex": search },'$options': 'i'},
-                    { "curp": { "$regex": search }, '$options': 'i'}
+                    { "lastame": { "$regex": search ,'$options': 'i'}},
+                    { "curp": { "$regex": search , '$options': 'i'}}
                 ]}, { "_id": 1, "name": 1, "lastname": 1, "curp": 1 })
             else:
                 patients_list = cnx.patients.find({"doctors": ObjectId(id)}, { "_id": 1, "name": 1, "lastname": 1, "curp": 1 })
