@@ -11,8 +11,8 @@ from api.utils.responses import json_encoder
 patient_router = APIRouter(tags=["patients"])
 
 @patient_router.get("/patients")
-def get_all_existing_patients(search: str = None):
-    patients = PatientService().get_all_existing_patients(search)
+def get_all_existing_patients(doctor_id: str = None, search: str = None):
+    patients = PatientService().get_all_existing_patients(doctor_id, search)
     if not patients:
         return JSONResponse({"message": "No patients found"}, status_code=status.HTTP_404_NOT_FOUND)
     return json_encoder(patients)
@@ -37,6 +37,14 @@ def add_patient(patient: Patient):
     if not response:
         return JSONResponse({"message": "Patient could not be added"}, status_code=status.HTTP_409_CONFLICT)
     return JSONResponse({"message": "Patient added successfully"}, status_code=status.HTTP_201_CREATED)
+
+@patient_router.put("/patients/linkExistingPatient")
+def add_doctor_to_patient(patient_id: str, doctor_id: str):
+    response = PatientService().add_doctor_to_patient(patient_id, doctor_id)
+    if not response:
+        return JSONResponse({"message": "Patient could not be added"}, status_code=status.HTTP_409_CONFLICT)
+    return JSONResponse({"message": "Patient added successfully"}, status_code=status.HTTP_200_OK)
+
 
 @patient_router.put("/patients/{id}")
 def update_patient(id: str, patient: Patient):
