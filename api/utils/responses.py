@@ -7,8 +7,8 @@ from fastapi.encoders import jsonable_encoder
 
 ENCODERS = {
     ObjectId: lambda vl: str(vl),
-    date: lambda vl: datetime.strftime(vl, r"%b %d %Y"),
-    datetime: lambda vl: date.strftime(vl, r"%b %d %Y %H:%M")
+    datetime: lambda vl : datetime.strftime(vl, "%Y-%m-%d %H:%M:%S"),
+    date: lambda vl : date.strftime(vl, "%Y-%m-%d")
 }
 
 def json_encoder(obj, *args, **kwargs):

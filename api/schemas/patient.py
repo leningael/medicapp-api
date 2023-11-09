@@ -1,5 +1,6 @@
 from typing import List
-from pydantic import BaseModel
+from bson import ObjectId
+from pydantic import BaseModel, Field
 
 class Patient(BaseModel):
     name: str
@@ -13,5 +14,12 @@ class Patient(BaseModel):
     zipcode: str
     bloodtype: str
     doctors: List[str]
+
+class PatientOverview(BaseModel):
+    id: str = Field(alias="_id")
+    name: str
+    lastname: str
+    curp: str
+
 
     
