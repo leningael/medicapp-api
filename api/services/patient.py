@@ -6,7 +6,7 @@ from pymongo import ReturnDocument
 
 
 class PatientService():
-
+    
     def get_all_existing_patients(self, doctor_id: str = None, search: str = None):
         with MongoCon() as cnx:
             find_condition = {}
@@ -44,6 +44,7 @@ class PatientService():
         with MongoCon() as cnx:
             patient.doctors = [ObjectId(id) for id in patient.doctors]
             new_patient = patient.model_dump()
+            # TODO add doctor
             response = cnx.patients.insert_one(new_patient)
             if not response:
                 return None
@@ -69,3 +70,5 @@ class PatientService():
             if not response:
                 return None
             return response
+        
+    #TODO atatch doctor (agregar paciente existente)

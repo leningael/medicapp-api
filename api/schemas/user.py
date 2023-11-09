@@ -12,8 +12,26 @@ class UserCredentials(BaseModel):
     name: str
     lastname: str
     email: str
+    role:str
 
 class LoginCredentialsResponse(BaseModel):
     token: str
     user_credentials: UserCredentials
     role: str
+    
+class CreateUserRequest(BaseModel):
+    username: str
+    name: str
+    lastname: str
+    email: str
+    role:str
+    password:str
+    confirm_password:str
+    
+class User(BaseModel):
+    username: str
+    name: str
+    lastname: str
+    email: str
+    role:str
+    password:str
