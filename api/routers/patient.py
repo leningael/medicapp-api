@@ -8,7 +8,7 @@ from api.services.patient import PatientService
 from api.utils.responses import json_encoder
 
 
-patient_router = APIRouter()
+patient_router = APIRouter(tags=["patients"])
 
 @patient_router.get("/patients")
 def get_all_existing_patients(search: str = None):
