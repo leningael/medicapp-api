@@ -7,14 +7,14 @@ from pymongo import ReturnDocument
 
 class PatientService():
 
-    def get_all_existing_patients(self, search: str = None):
+    def get_all_existing_patients(self, doctor_id: str = None, search: str = None):
         with MongoCon() as cnx:
+            find_condition = {}
+            if doctor_id:
+                find_condition["doctors"] = {"$ne": ObjectId(doctor_id)}
             if search:
-               patients_list = cnx.patients.find({"curp": {"$regex": search}},{ "_id": 1, "name": 1, "lastname": 1, "curp": 1 })
-            else:
-                patients_list = cnx.patients.find({},{ "_id": 1, "name": 1, "lastname": 1, "curp": 1 })
-            if not patients_list:
-                return None              
+                find_condition.update({"curp": {"$regex": search, '$options': 'i'}}) 
+            patients_list = cnx.patients.find(find_condition,{ "_id": 1, "name": 1, "lastname": 1, "curp": 1 })
             return list(patients_list)
         
     def get_dr_patients(self, id: str, search: str = None):
@@ -23,9 +23,9 @@ class PatientService():
                 patients_list = cnx.patients.find(
                 {"doctors": ObjectId(id),
                 "$or": [
-                    { "name": { "$regex": search } },
-                    { "lastame": { "$regex": search } },
-                    { "curp": { "$regex": search } }
+                    { "name": { "$regex": search, '$options': 'i' } },
+                    { "lastame": { "$regex": search ,'$options': 'i'}},
+                    { "curp": { "$regex": search , '$options': 'i'}}
                 ]}, { "_id": 1, "name": 1, "lastname": 1, "curp": 1 })
             else:
                 patients_list = cnx.patients.find({"doctors": ObjectId(id)}, { "_id": 1, "name": 1, "lastname": 1, "curp": 1 })
@@ -38,8 +38,7 @@ class PatientService():
             patient = cnx.patients.find_one({"_id": ObjectId(id)})
             if not patient:
                 return None
-            patient["doctors"] = json_encoder(patient["doctors"])
-            return Patient(**patient)
+            return patient
         
     def add_patient(self, patient: Patient):
         with MongoCon() as cnx:
@@ -50,12 +49,19 @@ class PatientService():
                 return None
             return response
         
-    def update_patient(self, id: str, patient: Patient):
+    def add_doctor_to_patient(self, id_patient: str, id_doctor: str):
         with MongoCon() as cnx:
-            response = cnx.patients.find_one_and_update({"_id": ObjectId(id)}, {"$set": patient.dict()}, return_document = ReturnDocument.AFTER)
+            response = cnx.patients.find_one_and_update({"_id": ObjectId(id_patient)}, {"$push": {"doctors": ObjectId(id_doctor)}}, return_document = ReturnDocument.AFTER)
             if not response:
                 return None
-            return Patient(**response)
+            return response
+        
+    def update_patient(self, id: str, patient: Patient):
+        with MongoCon() as cnx:
+            response = cnx.patients.find_one_and_update({"_id": ObjectId(id)}, {"$set": patient.model_dump()}, return_document = ReturnDocument.AFTER)
+            if not response:
+                return None
+            return response
         
     def delete_patient(self, id: str):
         with MongoCon() as cnx:
