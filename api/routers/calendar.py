@@ -1,7 +1,7 @@
 from typing import List
 from fastapi import APIRouter, HTTPException
 
-from api.schemas.appointment import Appointment, AppointmentCreation, AppointmentMove, BusinessHours, DayAppointments
+from api.schemas.appointment import Appointment, AppointmentCreation, AppointmentMove, BusinessHours, DayAppointments, PatientAppointment
 import api.services.calendar as calendar_service
 from api.utils.responses import json_encoder, success_ok, not_found
 
@@ -25,7 +25,7 @@ def get_day_appointments(doctor_id: str, date: str):
     appointments = calendar_service.get_day_appointments(doctor_id, date)
     return json_encoder(appointments)
 
-@calendar_router.get("/get_patient_appointments/{doctor_id}/{patient_id}", response_model=List[Appointment])
+@calendar_router.get("/get_patient_appointments/{doctor_id}/{patient_id}", response_model=List[PatientAppointment])
 def get_patient_appointments(doctor_id: str, patient_id: str):
     appointments = calendar_service.get_patient_appointments(doctor_id, patient_id)
     if not appointments:

@@ -4,7 +4,7 @@ from typing import List
 from bson import ObjectId
 from fastapi import HTTPException
 from pymongo import UpdateOne
-from api.schemas.appointment import Appointment, AppointmentCreation, AppointmentMove, BusinessHours, DayAppointments
+from api.schemas.appointment import Appointment, AppointmentCreation, AppointmentMove, BusinessHours, DayAppointments, PatientAppointment
 from config.mongoCon import MongoCon
 from pymongo.command_cursor import CommandCursor
 
@@ -131,7 +131,7 @@ def get_day_appointments(doctor_id: str, date: str) -> DayAppointments:
     return {'business_hours': business_hours, 'appointments': appointments}
 
 
-def get_patient_appointments(doctor_id: str, patient_id: str) -> List[Appointment]:
+def get_patient_appointments(doctor_id: str, patient_id: str) -> List[PatientAppointment]:
     with MongoCon() as cnx:
         result = cnx.appointments.aggregate([
             {
@@ -159,8 +159,8 @@ def get_patient_appointments(doctor_id: str, patient_id: str) -> List[Appointmen
                             "if": {
                                 "$lt": ["$start_datetime", datetime.now()]
                             },
-                            "then": "pending",
-                            "else": "completed"
+                            "then": "completed",
+                            "else": "pending"
                         }
                     }
                 }
