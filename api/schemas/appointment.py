@@ -26,6 +26,13 @@ class Appointment(BaseModel):
     end_datetime: datetime
     patient: PatientInfo
 
+class PatientAppointment(BaseModel):
+    id: str = Field(alias="_id")
+    cause: str
+    start_datetime: datetime
+    end_datetime: datetime
+    status: str
+    
 class DayAppointments(BaseModel):
     business_hours: BusinessHours
     appointments: List[Appointment]

@@ -1,6 +1,7 @@
 import json
-from fastapi import APIRouter, Query
+from fastapi import APIRouter
 from fastapi import status
+from fastapi.params import Body
 from fastapi.responses import JSONResponse
 from api.schemas.patient import ClinicalHistory, Patient
 
@@ -39,12 +40,11 @@ def add_patient(patient: Patient):
     return JSONResponse({"message": "Patient added successfully"}, status_code=status.HTTP_201_CREATED)
 
 @patient_router.put("/patients/linkExistingPatient")
-def add_doctor_to_patient(patient_id: str, doctor_id: str):
+def add_doctor_to_patient(patient_id: str = Body(), doctor_id: str = Body()):
     response = PatientService().add_doctor_to_patient(patient_id, doctor_id)
     if not response:
         return JSONResponse({"message": "Patient could not be added"}, status_code=status.HTTP_409_CONFLICT)
     return JSONResponse({"message": "Patient added successfully"}, status_code=status.HTTP_200_OK)
-
 
 @patient_router.put("/patients/{id}")
 def update_patient(id: str, patient: Patient):
