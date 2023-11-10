@@ -13,8 +13,8 @@ notes_router = APIRouter(tags=["notes"],prefix='/note')
 @notes_router.get("/")
 def index():
     notes = NotesService.get_notes()
-    if not notes:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail="Notes not found")
+    #if not notes:
+    #    raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail="Notes not found")
     return notes
 
 
