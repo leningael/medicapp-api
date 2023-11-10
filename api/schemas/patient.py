@@ -1,7 +1,13 @@
-from typing import List
-from bson import ObjectId
+from typing import List, Optional
 from pydantic import BaseModel, Field
 
+class ClinicalHistory(BaseModel):
+    pathological: Optional[str]
+    non_pathological: Optional[str]
+    inherit: Optional[str]
+    surgical: Optional[str]
+    current_medication: Optional[str]
+    allergies: Optional[str]
 class Patient(BaseModel):
     name: str
     lastname: str
@@ -14,6 +20,7 @@ class Patient(BaseModel):
     zipcode: str
     bloodtype: str
     doctors: List[str]
+    clinical_history: Optional[ClinicalHistory] = None
 
 class PatientOverview(BaseModel):
     id: str = Field(alias="_id")

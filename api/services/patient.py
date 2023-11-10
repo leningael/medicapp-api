@@ -1,5 +1,5 @@
 from bson import ObjectId
-from api.schemas.patient import Patient, PatientOverview
+from api.schemas.patient import ClinicalHistory, Patient, PatientOverview
 from api.utils.responses import json_encoder
 from config.mongoCon import MongoCon
 from pymongo import ReturnDocument
@@ -63,6 +63,14 @@ class PatientService():
     def update_patient(self, id: str, patient: Patient):
         with MongoCon() as cnx:
             response = cnx.patients.find_one_and_update({"_id": ObjectId(id)}, {"$set": patient.model_dump()}, return_document = ReturnDocument.AFTER)
+            if not response:
+                return None
+            return response
+        
+    def update_clinical_history(self, id: str, clinical_history: ClinicalHistory):
+        with MongoCon() as cnx:
+            
+            response = cnx.patients.find_one_and_update({"_id": ObjectId(id)}, {"$set": {'clinical_history': clinical_history.model_dump()}}, return_document = ReturnDocument.AFTER)
             if not response:
                 return None
             return response
