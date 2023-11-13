@@ -20,7 +20,7 @@ class UserService():
         print(user_match)
         role = user_match.pop("role")
         token = create_token(dict(user_credentials))
-        return LoginCredentialsResponse(app_token=token, user_credentials=user_credentials, role=role)
+        return LoginCredentialsResponse(token=token, user_credentials=user_credentials, role=role)
     
     def get_user_details(self,id:str):
         with MongoCon() as cnx:
