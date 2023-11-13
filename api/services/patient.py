@@ -83,4 +83,3 @@ class PatientService():
                 return None
             return response
         
-    #TODO atatch doctor (agregar paciente existente)

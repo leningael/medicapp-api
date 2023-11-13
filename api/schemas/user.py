@@ -1,3 +1,4 @@
+from typing import Optional
 from pydantic import BaseModel, Field
 
 
@@ -15,7 +16,7 @@ class UserCredentials(BaseModel):
     role:str
 
 class LoginCredentialsResponse(BaseModel):
-    app_token: str
+    token: str
     user_credentials: UserCredentials
     role: str
     
@@ -35,3 +36,9 @@ class User(BaseModel):
     email: str
     role:str
     password:str
+class UserEdit(BaseModel):
+    username: str
+    name: str
+    lastname: str
+    email: str
+    password: Optional[str] = ''
