@@ -1,6 +1,5 @@
 from bson import ObjectId
 from api.schemas.patient import ClinicalHistory, Patient, PatientOverview
-from api.utils.responses import json_encoder
 from config.mongoCon import MongoCon
 from pymongo import ReturnDocument
 
