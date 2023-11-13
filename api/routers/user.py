@@ -3,7 +3,7 @@ from fastapi import APIRouter
 from fastapi.responses import JSONResponse
 from fastapi import status
 
-from api.schemas.user import User, LoginCredentials, LoginCredentialsResponse, CreateUserRequest
+from api.schemas.user import User, LoginCredentials, LoginCredentialsResponse, CreateUserRequest, UserEdit
 from api.services.user import UserService
 
 
@@ -33,14 +33,14 @@ def create_new_user(createUserRequest : CreateUserRequest):
     return JSONResponse({"message": "User added successfully"}, status_code=status.HTTP_201_CREATED)
 
 @user_router.put("/users/{id}")
-def update_patient(id: str, user: User):
+def update_user(id: str, user: UserEdit):
     response = UserService().update_user(id, user)
     if not response:
         return JSONResponse({"message": "User could not be updated"}, status_code=status.HTTP_409_CONFLICT)
     return JSONResponse({"message": "User updated successfully"}, status_code=status.HTTP_200_OK)
 
 @user_router.delete("/users/{id}")
-def delete_patient(id: str):
+def delete_user(id: str):
     response = UserService().delete_user(id)
     if not response:
         return JSONResponse({"message": "User could not be deleted"}, status_code=status.HTTP_409_CONFLICT)
