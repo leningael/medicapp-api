@@ -1,4 +1,5 @@
-from api.schemas.user import User,LoginCredentials, LoginCredentialsResponse, UserCredentials, CreateUserRequest
+from pymongo import ReturnDocument
+from api.schemas.user import User,LoginCredentials, LoginCredentialsResponse, UserCredentials, CreateUserRequest, UserEdit
 from api.utils.jwt_manager import create_token
 from config.mongoCon import MongoCon
 from api.utils import encrypt
@@ -8,9 +9,10 @@ class UserService():
     def login(self, credentials:LoginCredentials) -> LoginCredentialsResponse:
         with MongoCon() as cnx:
             user_match = cnx.users.find_one({"email": credentials.email})
-        if not user_match or user_match["password"] != credentials.password:
+            
+        if not user_match or not encrypt.verify_password(credentials.password, user_match["password"]):
             return None
-        
+            
         user_match.pop("password")
         
         user_credentials = UserCredentials(
@@ -47,11 +49,14 @@ class UserService():
                 return None
             return response
         
-    def update_user(self, id: str, user: User):
-        print(user.dict())
+    def update_user(self, id: str, user: UserEdit):
         with MongoCon() as cnx:
-            response = cnx.users.find_one_and_update({"_id": ObjectId(id)}, {"$set": user.dict()})
-            print(response)
+            if user.password != '':
+                user.password = encrypt.get_password_hash(user.password)
+                response = cnx.users.find_one_and_update({"_id": ObjectId(id)}, {"$set": {"password": user.password}}, return_document = ReturnDocument.AFTER)
+            else:
+                user.model_dump().pop("password")
+                response = cnx.users.find_one_and_update({"_id": ObjectId(id)}, {"$set": user.model_dump()}, return_document = ReturnDocument.AFTER)
             if not response:
                 return None
             return response

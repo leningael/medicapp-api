@@ -1,6 +1,5 @@
 from bson import ObjectId
-from api.schemas.patient import Patient, PatientOverview
-from api.utils.responses import json_encoder
+from api.schemas.patient import ClinicalHistory, Patient, PatientOverview
 from config.mongoCon import MongoCon
 from pymongo import ReturnDocument
 
@@ -55,6 +54,7 @@ class PatientService():
         
     def add_doctor_to_patient(self, id_patient: str, id_doctor: str):
         with MongoCon() as cnx:
+            print(id_patient, id_doctor)
             response = cnx.patients.find_one_and_update({"_id": ObjectId(id_patient)}, {"$push": {"doctors": ObjectId(id_doctor)}}, return_document = ReturnDocument.AFTER)
             if not response:
                 return None
@@ -62,7 +62,15 @@ class PatientService():
         
     def update_patient(self, id: str, patient: Patient):
         with MongoCon() as cnx:
+            patient.doctors = [ObjectId(id) for id in patient.doctors]
             response = cnx.patients.find_one_and_update({"_id": ObjectId(id)}, {"$set": patient.model_dump()}, return_document = ReturnDocument.AFTER)
+            if not response:
+                return None
+            return response
+        
+    def update_clinical_history(self, id: str, clinical_history: ClinicalHistory):
+        with MongoCon() as cnx:
+            response = cnx.patients.find_one_and_update({"_id": ObjectId(id)}, {"$set": {'clinical_history': clinical_history.model_dump()}}, return_document = ReturnDocument.AFTER)
             if not response:
                 return None
             return response
@@ -74,4 +82,3 @@ class PatientService():
                 return None
             return response
         
-    #TODO atatch doctor (agregar paciente existente)

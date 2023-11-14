@@ -1,3 +1,4 @@
+from typing import Optional
 from pydantic import BaseModel, Field
 
 
@@ -35,3 +36,9 @@ class User(BaseModel):
     email: str
     role:str
     password:str
+class UserEdit(BaseModel):
+    username: str
+    name: str
+    lastname: str
+    email: str
+    password: Optional[str] = ''

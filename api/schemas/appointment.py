@@ -32,7 +32,7 @@ class PatientAppointment(BaseModel):
     start_datetime: datetime
     end_datetime: datetime
     status: str
-
+    
 class DayAppointments(BaseModel):
     business_hours: BusinessHours
     appointments: List[Appointment]

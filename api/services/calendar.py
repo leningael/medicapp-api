@@ -159,8 +159,8 @@ def get_patient_appointments(doctor_id: str, patient_id: str) -> List[PatientApp
                             "if": {
                                 "$lt": ["$start_datetime", datetime.now()]
                             },
-                            "then": "pending",
-                            "else": "completed"
+                            "then": "completed",
+                            "else": "pending"
                         }
                     }
                 }
@@ -170,6 +170,18 @@ def get_patient_appointments(doctor_id: str, patient_id: str) -> List[PatientApp
         return None
     return list(result)
 
+def get_active_appointments(doctor_id: str) -> List[Appointment]:
+    with MongoCon() as cnx:
+        result = get_appointments({
+            "doctor_id": ObjectId(doctor_id),
+            "start_datetime": {
+                "$gte": datetime.now()
+            }
+        })
+    if not result:
+        print("No hay citas")
+        return None    
+    return list(result)
 
 def delete_appointment(appointment_id: str) -> bool:
     with MongoCon() as cnx:

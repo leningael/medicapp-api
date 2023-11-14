@@ -36,6 +36,13 @@ def get_patient_appointments(doctor_id: str, patient_id: str):
         return not_found("Appointments")
     return json_encoder(appointments)
 
+@calendar_router.get("/get_active_appointments/{doctor_id}", response_model=List[Appointment])
+def get_active_appointments(doctor_id: str):
+    appointments = calendar_service.get_active_appointments(doctor_id)
+    if not appointments:
+        raise HTTPException(status_code=404, detail="Appointments not found")
+    return json_encoder(appointments)
+
 @calendar_router.delete("/delete_appointment/{appointment_id}")
 def delete_appointment(appointment_id: str):
     result = calendar_service.delete_appointment(appointment_id)
