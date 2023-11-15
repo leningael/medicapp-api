@@ -60,6 +60,13 @@ def update_clinical_history(id: str, clinical_history: ClinicalHistory):
         return JSONResponse({"message": "Clinical history could not be updated"}, status_code=status.HTTP_409_CONFLICT)
     return JSONResponse({"message": "Clinical history updated successfully"}, status_code=status.HTTP_200_OK)
 
+@patient_router.delete("/patients/{patient_id}/deleteDoctor/{doctor_id}")
+def delete_dr_from_patient(patient_id: str, doctor_id: str):
+    response = PatientService().delete_dr_from_patient(patient_id, doctor_id)
+    if not response:
+        return JSONResponse({"message": "Patient could not be deleted"}, status_code=status.HTTP_409_CONFLICT)
+    return JSONResponse({"message": "Patient deleted successfully"}, status_code=status.HTTP_200_OK)
+
 @patient_router.delete("/patients/{id}")
 def delete_patient(id: str):
     response = PatientService().delete_patient(id)
