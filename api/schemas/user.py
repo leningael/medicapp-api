@@ -42,3 +42,9 @@ class UserEdit(BaseModel):
     lastname: str
     email: str
     password: Optional[str] = ''
+    
+class UserInformation(BaseModel):
+    numberPatients: Optional[int] = 0 
+    numberAppointments: Optional[int] = 0 
+    numberReceptionists: Optional[int] = 0 
+    numberDoctors: Optional[int] = 0

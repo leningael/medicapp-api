@@ -24,6 +24,12 @@ def read_user_details(id):
         return JSONResponse({"message": "No user found"}, status_code=status.HTTP_404_NOT_FOUND)
     return json_encoder(user)
     
+@user_router.get("/users/{id}/information")
+def read_user_information(id):
+    user = UserService().get_user_information(id)
+    if not user:
+        return JSONResponse({"message": "No user found"}, status_code=status.HTTP_404_NOT_FOUND)
+    return json_encoder(user)
 
 @user_router.post("/users")
 def create_new_user(createUserRequest : CreateUserRequest):

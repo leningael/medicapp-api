@@ -75,6 +75,13 @@ class PatientService():
                 return None
             return response
         
+    def delete_dr_from_patient(self, patient_id: str, doctor_id: str):
+        with MongoCon() as cnx:
+            response = cnx.patients.find_one_and_update({"_id": ObjectId(patient_id)}, {"$pull": {"doctors": ObjectId(doctor_id)}}, return_document = ReturnDocument.AFTER)
+            if not response:
+                return None
+            return response
+        
     def delete_patient(self, id: str):
         with MongoCon() as cnx:
             response = cnx.patients.find_one_and_delete({"_id": ObjectId(id)})
