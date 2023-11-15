@@ -45,7 +45,10 @@ class UserService():
                 numberReceptionists = len(list(cnx.users.find({"doctors": ObjectId(id)})))
                 return UserInformation(numberPatients=numberPatients,numberAppointments=numberAppointments,numberReceptionists=numberReceptionists)
             if user["role"] == "receptionist":
-                numberDoctors = len(user["doctors"])
+                if "doctors" in user:
+                    numberDoctors = len(user["doctors"])
+                else :
+                    numberDoctors = 0
                 return UserInformation(numberDoctors=numberDoctors)
             if user["role"] == "admin":
                 numberDoctors = len(list(cnx.users.find({"role": "doctor"},{"_id":1})))
