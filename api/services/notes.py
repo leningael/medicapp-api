@@ -26,7 +26,7 @@ class NotesService:
                 note["_id"] = str(note["_id"])
                 if note.get("content",False):
                     note["reason"] = note.get("content").get("reason")
-                results.append(NoteOverview(**note).model_dump(exclude_unset=True))
+                results.append(NoteOverview(**note))
         return results
     
     def get_details(self, id: Union[str, None]= None):
@@ -37,26 +37,30 @@ class NotesService:
             if not note:
                 raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail=messages["not_found"])
             note["_id"] = str(note["_id"])
-            return Note(**note).model_dump(exclude_none=True)
+            return Note(**note)
         
-    def post_note(self, note: Note ):
+    def post_note(self, note: Note):
         with MongoCon() as cnx:
-            note_insert = cnx.notes.insert_one(note.model_dump(exclude_none=True))
-        return jsonable_encoder({"id": note_insert.inserted_id, **note.model_dump()})
+            note = note.model_dump(exclude_none=True, exclude_unset=True, exclude_defaults=True, by_alias=True)
+            note["patient"]["_id"] = str(note["patient"].pop('_id', ''))
+            note_insert = cnx.notes.insert_one({**note})
+        return jsonable_encoder({"id": str(note_insert.inserted_id), **note})
     
     def delete_note(cls, id: str):
         with MongoCon() as cnx:
-            found = cnx.db.notes.find_one({"_id": ObjectId(id)})
+            found = cnx.notes.find_one({"_id": ObjectId(id)})
             if not found:
                 raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail=messages["not_found"])
-            cnx.db.notes.delete_one({"_id": ObjectId(id)})
+            cnx.notes.delete_one({"_id": ObjectId(id)})
         return jsonable_encoder({"id": id, "message": "Note deleted successfully"})
 
-    def update_note(cls):
+    def update_note(cls, id: str, note: Note):
         with MongoCon() as cnx:
-            found = cnx.db.notes.find_one({"_id": ObjectId(id)})
+            note_model = note.model_dump(by_alias=True)
+            del note_model["_id"]
+            found = cnx.notes.find_one({"_id": ObjectId(id)})
             if not found:
                 raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail=messages["not_found"])
-            cnx.db.notes.delete_one({"_id": ObjectId(id)})
-        return jsonable_encoder({"id": id, "message": "Note deleted successfully"})
+            cnx.notes.update_one({"_id": ObjectId(id)}, {"$set":{**note_model}}, upsert=False)
+        return jsonable_encoder({"id": id, "message": "Note update successfully"})
         

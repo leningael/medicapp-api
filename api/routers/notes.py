@@ -18,12 +18,15 @@ def index():
 
 @notes_router.post("/")
 def create_note(note: Note):
-    response = NotesService().post_note(note)
-    return response
+    try:
+        response = NotesService().post_note(note)
+        return response
+    except Exception as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 
 @notes_router.get("/{id}")
-def delete_note(id: str):
-    response = NotesService().get_details(id)
+def get_details(id: str):
+    response = NotesService().get_details(id).model_dump(by_alias=True)
     content = response.pop('content', False)
     return jsonable_encoder({**response, **content})
 
@@ -34,5 +37,9 @@ def delete_note(id: str):
 
 @notes_router.put("/{id}")
 def update_note(id: str, note: Note):
-    response = NotesService().update_note(id, note)
-    return response
+    try:
+        response = NotesService().update_note(id, note)
+        return response
+    except Exception as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+   

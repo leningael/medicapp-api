@@ -1,7 +1,7 @@
 import datetime
 
 from pydantic import BaseModel, Field
-from typing import List, Optional, Union
+from typing import List, Union
 from api.schemas.patient import PatientOverview
 
 class NoteOverview(BaseModel):
@@ -26,7 +26,7 @@ class NoteContent(BaseModel):
     temperature: str
     weight: str
     height: str
-    imc: int
+    imc: float
     sistolic_pressure: str
     diastolic_pressure: str
     medication: Union[List[Medicament], None] = None
@@ -34,7 +34,7 @@ class NoteContent(BaseModel):
     
 class Note(BaseModel):
     id: Union[str, None] = Field(default=None,alias='_id')
-    patient: PatientOverview
+    patient: PatientOverview 
     doctor_name: str
     date: Union[datetime.datetime, None]  = Field(default=datetime.datetime.now())
     content: NoteContent
