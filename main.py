@@ -4,6 +4,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from api.routers.user import user_router
 from api.routers.calendar import calendar_router
 from api.routers.patient import patient_router
+from api.routers.notes import notes_router
+
 
 
 app = FastAPI()
@@ -22,6 +24,7 @@ app.add_middleware(
 app.include_router(user_router)
 app.include_router(calendar_router)
 app.include_router(patient_router)
+app.include_router(notes_router)
 
 @app.get("/")
 def root():
