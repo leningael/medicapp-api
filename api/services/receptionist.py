@@ -12,7 +12,7 @@ def get_all_receptionists(doctor_id: str = None, search: str = None) -> List[Rec
         find_condition.update({
             "$or": [
                 {"name": {"$regex": search, "$options": "i"}},
-                {"last_name": {"$regex": search, "$options": "i"}}
+                {"lastname": {"$regex": search, "$options": "i"}}
             ]
         })
     with MongoCon() as cnx:
@@ -26,7 +26,7 @@ def get_dr_receptionists(doctor_id: str, search: str = None) -> List[Receptionis
         find_condition.update({
             "$or": [
                 {"name": {"$regex": search, "$options": "i"}},
-                {"last_name": {"$regex": search, "$options": "i"}}
+                {"lastname": {"$regex": search, "$options": "i"}}
             ]
         })
     with MongoCon() as cnx:
