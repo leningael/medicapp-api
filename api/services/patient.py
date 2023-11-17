@@ -1,5 +1,5 @@
 from bson import ObjectId
-from api.schemas.patient import ClinicalHistory, Patient, PatientOverview
+from api.schemas.patient import ClinicalHistory, Patient
 from config.mongoCon import MongoCon
 from pymongo import ReturnDocument
 
@@ -54,7 +54,6 @@ class PatientService():
         
     def add_doctor_to_patient(self, id_patient: str, id_doctor: str):
         with MongoCon() as cnx:
-            print(id_patient, id_doctor)
             response = cnx.patients.find_one_and_update({"_id": ObjectId(id_patient)}, {"$push": {"doctors": ObjectId(id_doctor)}}, return_document = ReturnDocument.AFTER)
             if not response:
                 return None

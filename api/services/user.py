@@ -1,6 +1,6 @@
 from pymongo import ReturnDocument
-from api.routers.patient import get_dr_patients
 from api.schemas.user import User,LoginCredentials, LoginCredentialsResponse, UserCredentials, CreateUserRequest, UserEdit, UserInformation
+from api.services.patient import PatientService
 from api.services.calendar import get_active_appointments
 from api.utils.jwt_manager import create_token
 from config.mongoCon import MongoCon
@@ -21,9 +21,8 @@ class UserService():
             _id=str(user_match.pop("_id")),
             **user_match
         )
-        print(user_match)
-        role = user_match.pop("role")
         token = create_token(dict(user_credentials))
+        role = user_match.pop("role")
         return LoginCredentialsResponse(token=token, user_credentials=user_credentials, role=role)
     
     def get_user_details(self,id:str):
@@ -40,7 +39,7 @@ class UserService():
             if not user:
                 return None
             if user["role"] == "doctor":
-                numberPatients = len(get_dr_patients(id))
+                numberPatients = len(PatientService().get_dr_patients(id) or [])
                 numberAppointments = len(get_active_appointments(id))
                 numberReceptionists = len(list(cnx.users.find({"doctors": ObjectId(id)})))
                 return UserInformation(numberPatients=numberPatients,numberAppointments=numberAppointments,numberReceptionists=numberReceptionists)
