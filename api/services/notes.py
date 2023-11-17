@@ -47,6 +47,17 @@ class NotesService:
             note_found["_id"] = str(note_found["_id"])
         return Note(**note_found)
     
+    def get_notes_by_patient(self, patient_id: Union[str, None]= None):
+        with MongoCon() as cnx:
+            notes = cnx.notes.find({"patient._id": patient_id})
+            results = []
+            for note in notes:
+                note["_id"] = str(note["_id"])
+                if note.get("content",False):
+                    note["reason"] = note.get("content").get("reason")
+                results.append(NoteOverview(**note))
+        return results
+
     def post_note(self, note: Note):
         with MongoCon() as cnx:
             note = note.model_dump(exclude_none=True, exclude_unset=True, exclude_defaults=True, by_alias=True)

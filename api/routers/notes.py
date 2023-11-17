@@ -49,3 +49,8 @@ def get_appointment_note(appointment_id: str):
     note = note.model_dump(by_alias=True)
     content = note.pop('content', {})
     return jsonable_encoder({**note, **content})
+
+@notes_router.get("/patient/{patient_id}")
+def get_notes_by_patient(patient_id: str):
+    notes = NotesService().get_notes_by_patient(patient_id)
+    return jsonable_encoder(notes)

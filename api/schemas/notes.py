@@ -13,6 +13,7 @@ class NoteOverview(BaseModel):
 class Medicament(BaseModel):
     id: Union[str, None] = Field(default=None,alias='_id')
     medicament: str
+    dose: str
     quantity: str
     consume_method: str
     frequency: str
