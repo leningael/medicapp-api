@@ -13,6 +13,7 @@ class NoteOverview(BaseModel):
 class Medicament(BaseModel):
     id: Union[str, None] = Field(default=None,alias='_id')
     medicament: str
+    dose: str
     quantity: str
     consume_method: str
     frequency: str
@@ -34,6 +35,7 @@ class NoteContent(BaseModel):
     
 class Note(BaseModel):
     id: Union[str, None] = Field(default=None,alias='_id')
+    appointment_id: Union[str, None] = None
     patient: PatientOverview 
     doctor_name: str
     date: Union[datetime.datetime, None]  = Field(default=datetime.datetime.now())
