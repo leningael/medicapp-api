@@ -38,7 +38,26 @@ class NotesService:
                 raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail=messages["not_found"])
             note["_id"] = str(note["_id"])
             return Note(**note)
-        
+
+    def get_appointment_note(self,appointment_id: Union[str, None]= None)-> Note:
+        with MongoCon() as cnx:
+            note_found = cnx.notes.find_one({"appointment_id": appointment_id})
+            if not note_found:
+                raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail=messages["not_found"])
+            note_found["_id"] = str(note_found["_id"])
+        return Note(**note_found)
+    
+    def get_notes_by_patient(self, patient_id: Union[str, None]= None):
+        with MongoCon() as cnx:
+            notes = cnx.notes.find({"patient._id": patient_id})
+            results = []
+            for note in notes:
+                note["_id"] = str(note["_id"])
+                if note.get("content",False):
+                    note["reason"] = note.get("content").get("reason")
+                results.append(NoteOverview(**note))
+        return results
+
     def post_note(self, note: Note):
         with MongoCon() as cnx:
             note = note.model_dump(exclude_none=True, exclude_unset=True, exclude_defaults=True, by_alias=True)
