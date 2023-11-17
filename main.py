@@ -6,6 +6,9 @@ from api.routers.calendar import calendar_router
 from api.routers.patient import patient_router
 from api.routers.receptionist import receptionist_router
 from api.routers.doctor import doctor_router
+from api.routers.notes import notes_router
+
+
 
 app = FastAPI()
 app.title = "MedicApp API"
@@ -25,6 +28,7 @@ app.include_router(calendar_router)
 app.include_router(patient_router)
 app.include_router(receptionist_router)
 app.include_router(doctor_router)
+app.include_router(notes_router)
 
 @app.get("/")
 def root():
