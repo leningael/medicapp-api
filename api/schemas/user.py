@@ -48,3 +48,11 @@ class UserInformation(BaseModel):
     numberAppointments: Optional[int] = 0 
     numberReceptionists: Optional[int] = 0 
     numberDoctors: Optional[int] = 0
+
+class UserOverview(BaseModel):
+    id: str = Field(alias="_id")
+    username: str
+    name: str
+    lastname: str
+    role:str
+    email: str

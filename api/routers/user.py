@@ -1,9 +1,11 @@
-from api.utils.responses import json_encoder
-from fastapi import APIRouter
+from typing import List
+from api.utils.jwt_manager import validate_token
+from api.utils.responses import json_encoder, success_ok
+from fastapi import APIRouter, Header
 from fastapi.responses import JSONResponse
 from fastapi import status
 
-from api.schemas.user import User, LoginCredentials, LoginCredentialsResponse, CreateUserRequest, UserEdit
+from api.schemas.user import User, LoginCredentials, LoginCredentialsResponse, CreateUserRequest, UserEdit, UserOverview
 from api.services.user import UserService
 
 
@@ -16,6 +18,13 @@ def login(credentials:LoginCredentials):
     if not user_credentials:
         return JSONResponse({"message": "Invalid credentials"}, status_code=status.HTTP_401_UNAUTHORIZED)
     return json_encoder(user_credentials)
+
+@user_router.get("/users", response_model=List[UserOverview])
+def read_users(Authorization = Header(), search: str = None):
+    _, token = Authorization.split()
+    credentials = validate_token(token)
+    users = UserService().get_users(search, credentials.get("id", None))
+    return json_encoder(users)
 
 @user_router.get("/users/{id}")
 def read_user_details(id):
@@ -49,5 +58,5 @@ def update_user(id: str, user: UserEdit):
 def delete_user(id: str):
     response = UserService().delete_user(id)
     if not response:
-        return JSONResponse({"message": "User could not be deleted"}, status_code=status.HTTP_409_CONFLICT)
+        return JSONResponse({"message": "User could not be deleted"}, status_code=status.HTTP_404_NOT_FOUND)
     return JSONResponse({"message": "User deleted successfully"}, status_code=status.HTTP_200_OK)
