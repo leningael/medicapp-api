@@ -1,5 +1,6 @@
+from typing import List
 from pymongo import ReturnDocument
-from api.schemas.user import User,LoginCredentials, LoginCredentialsResponse, UserCredentials, CreateUserRequest, UserEdit, UserInformation
+from api.schemas.user import User,LoginCredentials, LoginCredentialsResponse, UserCredentials, CreateUserRequest, UserEdit, UserInformation, UserOverview
 from api.services.patient import PatientService
 from api.services.calendar import get_active_appointments
 from api.utils.jwt_manager import create_token
@@ -24,6 +25,26 @@ class UserService():
         token = create_token(dict(user_credentials))
         role = user_match.pop("role")
         return LoginCredentialsResponse(token=token, user_credentials=user_credentials, role=role)
+    
+    def get_users(self, search: str = None, excluded_id: str = None) -> List[UserOverview]:
+        find_condition = {}
+        if excluded_id:
+            find_condition["_id"] = {"$ne": ObjectId(excluded_id)}
+        if search:
+            search_fields = {
+                "$or":
+                [
+                    {"name": {"$regex": search, "$options": "i"}},
+                    {"lastname": {
+                        "$regex": search, "$options": "i"}},
+                    {"username": {"$regex": search, "$options": "i"}},
+                    {"role": search}
+                ]
+            }
+            find_condition.update(search_fields)
+        with MongoCon() as cnx:
+            users = list(cnx.users.find(find_condition, {"username": 1, "name": 1, "lastname": 1, "role": 1, "email": 1}))
+        return users
     
     def get_user_details(self,id:str):
         with MongoCon() as cnx:
@@ -61,12 +82,11 @@ class UserService():
         if create_user_request.password != create_user_request.confirm_password:
                 return None
         new_user = User(
-            email = create_user_request.email,
             username=create_user_request.username,
+            role=create_user_request.role,
             name=create_user_request.name,
             lastname=create_user_request.lastname,
-            #TODO add role validation [admin,doctor,receptionist]
-            role=create_user_request.role,
+            email = create_user_request.email,
             password=encrypt.get_password_hash(create_user_request.password)
         )
         with MongoCon() as cnx:
@@ -90,7 +110,10 @@ class UserService():
     
     def delete_user(self, id: str):
         with MongoCon() as cnx:
-            response = cnx.users.find_one_and_delete({"_id": ObjectId(id)})
-            if not response:
-                return None
-            return response
+            user = cnx.users.find_one({"_id": ObjectId(id)}, {"role": 1})
+            if user["role"] == "doctor":
+                cnx.patients.update_many({"doctors": ObjectId(id)}, {"$pull": {"doctors": ObjectId(id)}})
+                cnx.users.update_many({"role": "receptionist", "doctors": ObjectId(id)}, {"$pull": {"doctors": ObjectId(id)}})
+            result = cnx.users.delete_one({"_id": ObjectId(id)})
+        return result.deleted_count > 0
+            
