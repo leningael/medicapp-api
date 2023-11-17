@@ -16,6 +16,11 @@ def index():
     notes = NotesService().get_notes()
     return jsonable_encoder(notes)
 
+@notes_router.get("/search/{search}")
+def index(search: str):
+    notes = NotesService().get_notes(search)
+    return jsonable_encoder(notes)
+
 @notes_router.post("/")
 def create_note(note: Note):
     try:

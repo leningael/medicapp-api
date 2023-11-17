@@ -17,11 +17,12 @@ class NotesService:
         notes = []
         with MongoCon() as cnx:
             if term is None:
-                notes = cnx.notes.find()
+                notes = cnx.notes.find().sort("date",-1)
                 results = []
             else:
-                search = {"$regexp": {"$search": term, "$options":"i"}}
-                notes = cnx.notes.find({"$or": [{"title": search}, {"content.reason": search}]})
+                print(term)
+                search = {"$regex": term, "$options":"i"}
+                notes = cnx.notes.find({"$or": [{"title": search}, {"content.reason": search},{"patient.name": search}]}).sort(key_or_list="date",direction=-1)
             for note in notes:
                 note["_id"] = str(note["_id"])
                 if note.get("content",False):
